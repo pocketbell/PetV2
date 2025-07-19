@@ -1,0 +1,446 @@
+#include "Game.h"
+#include "Pet.h"
+#include "Timer.h"
+#include "Input.h"
+#include "Functions.h"
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+
+//void Game::SaveGame();
+//void Game::LoadGame();
+
+
+void Game::UpdateTime(Game::Time time, void(*function)(int&, int), int modifier)
+{
+	switch (time)
+	{
+	case Game::Time::Seconds:		function(m_SecondsPassed, modifier);		break;
+	case Game::Time::Minutes:		function(m_MinutesPassed, modifier);		break;
+	case Game::Time::Hours:			function(m_HoursPassed, modifier);			break;
+	case Game::Time::TotalSeconds:	function(m_TotalSecondsPassed, modifier);	break;
+	case Game::Time::TotalMinutes:	function(m_TotalMinutesPassed, modifier);	break;
+	case Game::Time::TotalHours:	function(m_TotalHoursPassed, modifier);		break;
+	}
+}
+int Game::GetTime(Game::Time time)
+{
+	switch (time)
+	{
+	case Game::Time::Seconds:			return m_SecondsPassed;
+	case Game::Time::Minutes:			return m_MinutesPassed;
+	case Game::Time::Hours:				return m_HoursPassed;
+	case Game::Time::TotalSeconds:		return m_TotalSecondsPassed;
+	case Game::Time::TotalMinutes:		return m_TotalMinutesPassed;
+	case Game::Time::TotalHours:		return m_TotalHoursPassed;
+	}
+}
+void Game::SetToggle(Game::Toggle toggle, bool set)
+{
+	switch (toggle)
+	{
+	case Game::Toggle::Second:	m_secondTick = set;		break;
+	case Game::Toggle::Minute:	m_minuteTick = set;		break;
+	case Game::Toggle::Hour:	m_hourTick = set;		break;
+	case Game::Toggle::Play:	m_playCooldown = set;	break;
+	case Game::Toggle::Feed:	m_feedCooldown = set;	break;
+	case Game::Toggle::Wash:	m_washCooldown = set;	break;
+	}
+}
+bool Game::GetToggle(Game::Toggle toggle)
+{
+	switch (toggle)
+	{
+	case Game::Toggle::Second:	return m_secondTick;
+	case Game::Toggle::Minute:	return m_minuteTick;
+	case Game::Toggle::Hour:	return m_hourTick;
+	case Game::Toggle::Play:	return m_playCooldown;
+	case Game::Toggle::Feed:	return m_feedCooldown;
+	case Game::Toggle::Wash:	return m_washCooldown;
+	}
+}
+Game::State Game::GetState()
+{
+	return m_state;
+}
+void Game::ChangeState(Game::State state)
+{
+	m_state = state;
+}
+void Game::UpdateState()
+{
+	m_input.GetInput();
+	switch (m_input.GetKey())
+	{
+	case 'g':	ChangeState(Game::State::Game);			break;
+	case 'p':	ChangeState(Game::State::Playing);		break;
+	case 'f':	ChangeState(Game::State::Feeding);		break;
+	case 'w':	ChangeState(Game::State::Washing);		break;
+	case 'r':	ChangeState(Game::State::Fighting);		break;
+	case 's':	ChangeState(Game::State::Stats);		break;
+	case 'm':	ChangeState(Game::State::Menu);			break;
+	}
+}
+void Game::PlayPet()
+{
+	if (GetToggle(Game::Toggle::Play) == false)
+	{
+		std::cout << "[A] to Play with pet." << '\n';
+		if (m_input.GetKey() == 'a')
+		{
+			m_pet.AdjustValue(Pet::Value::Mood, Funct::RaiseValue, m_PlayValue);
+			m_pet.AdjustValue(Pet::Value::Mood, Funct::MaxValue, m_pet.GetLimit(Pet::Limit::MaxMood));
+			SetToggle(Game::Toggle::Play, true);
+		}
+	}
+	else
+	{
+		std::cout << "Playing on cooldown" << '\n';
+	}
+}
+void Game::FeedPet()
+{
+	if (GetToggle(Game::Toggle::Feed) == false)
+	{
+		std::cout << "[A] to Feed pet" << '\n';
+		if (m_input.GetKey() == 'a')
+		{
+			m_pet.AdjustValue(Pet::Value::Hunger, Funct::RaiseValue, m_FoodValue);
+			m_pet.AdjustValue(Pet::Value::Hunger, Funct::MaxValue, m_pet.GetLimit(Pet::Limit::MaxHunger));
+			SetToggle(Game::Toggle::Feed, true);
+		}
+	}
+	else
+	{
+		std::cout << "Feeding on cooldown" << '\n';
+	}
+}
+void Game::WashPet()
+{
+	if (GetToggle(Game::Toggle::Wash) == false)
+	{
+		std::cout << "[A] to Wash pet" << '\n';
+		if (m_input.GetKey() == 'a')
+		{
+			m_pet.AdjustValue(Pet::Value::Hygiene, Funct::RaiseValue, m_WashValue);
+			m_pet.AdjustValue(Pet::Value::Hygiene, Funct::MaxValue, m_pet.GetLimit(Pet::Limit::MaxHygiene));
+			SetToggle(Game::Toggle::Wash, true);
+		}
+	}
+	else
+	{
+		std::cout << "Washing on cooldown" << '\n';
+	}
+}
+void Game::PetMinuteUpdates()
+{
+	if (GetToggle(Game::Toggle::Minute))
+	{
+		m_pet.AdjustValue(Pet::Value::Mood, Funct::LowerValue, m_MoodDecay);
+		m_pet.AdjustValue(Pet::Value::Mood, Funct::MinValue, m_pet.GetLimit(Pet::Limit::MinMood));
+		m_pet.AdjustValue(Pet::Value::Hunger, Funct::LowerValue, m_HungerDecay);
+		m_pet.AdjustValue(Pet::Value::Hunger, Funct::MinValue, m_pet.GetLimit(Pet::Limit::MinHunger));
+		m_pet.AdjustValue(Pet::Value::Hygiene, Funct::LowerValue, m_HygieneDecay);
+		m_pet.AdjustValue(Pet::Value::Hygiene, Funct::MinValue, m_pet.GetLimit(Pet::Limit::MinHygiene));
+	}
+}
+void Game::TickUpdate()
+{
+	if (m_timer.OneSecondPassed())
+	{
+		SetToggle(Game::Toggle::Second, true);
+	}
+	else
+	{
+		SetToggle(Game::Toggle::Second, false);
+	}
+	if (GetTime(Game::Time::Seconds) > 60)
+	{
+		SetToggle(Game::Toggle::Minute, true);
+		UpdateTime(Game::Time::Seconds, Funct::SetValue, 1);
+	}
+	else
+	{
+		SetToggle(Game::Toggle::Minute, false);
+	}
+	if (GetTime(Game::Time::Minutes) > 60)
+	{
+		SetToggle(Game::Toggle::Hour, true);
+		UpdateTime(Game::Time::Minutes, Funct::SetValue, 1);
+	}
+	else
+	{
+		SetToggle(Game::Toggle::Hour, false);
+	}
+}
+void Game::TimerUpdate()
+{
+	if (GetToggle(Game::Toggle::Second))
+	{
+		UpdateTime(Game::Time::Seconds, Funct::RaiseValue, 1);
+		UpdateTime(Game::Time::TotalSeconds, Funct::RaiseValue, 1);
+	}
+	if (GetToggle(Game::Toggle::Minute))
+	{
+		UpdateTime(Game::Time::Minutes, Funct::RaiseValue, 1);
+		UpdateTime(Game::Time::TotalMinutes, Funct::RaiseValue, 1);
+	}
+	if (GetToggle(Game::Toggle::Hour))
+	{
+		UpdateTime(Game::Time::Hours, Funct::RaiseValue, 1);
+		UpdateTime(Game::Time::TotalHours, Funct::RaiseValue, 1);
+	}
+}
+void Game::CooldownUpdates()
+{
+	if (GetToggle(Game::Toggle::Minute))
+	{
+		SetToggle(Game::Toggle::Play, false);
+		SetToggle(Game::Toggle::Feed, false);
+		SetToggle(Game::Toggle::Wash, false);
+	}
+}
+void Game::SaveGame()
+{
+	std::ofstream outputFile("PetData.txt", std::ios::trunc);
+	if (outputFile.is_open())
+	{
+		//Game Values
+		outputFile << m_SecondsPassed << '\n';
+		outputFile << m_TotalSecondsPassed << '\n';
+		outputFile << m_MinutesPassed << '\n';
+		outputFile << m_TotalMinutesPassed << '\n';
+		outputFile << m_HoursPassed << '\n';
+		outputFile << m_TotalHoursPassed << '\n';
+		outputFile << m_secondTick << '\n';
+		outputFile << m_minuteTick << '\n';
+		outputFile << m_hourTick << '\n';
+		outputFile << m_playCooldown << '\n';
+		outputFile << m_feedCooldown << '\n';
+		outputFile << m_washCooldown << '\n';
+		//Pet Values
+		outputFile << m_pet.GetValue(Pet::Value::Health) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::MaxHealth) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Energy) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::MaxEnergy) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Mood) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Hunger) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Hygiene) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Str) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Int) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Sta) << '\n';;
+	}
+	outputFile.close();
+}
+void Game::LoadGame()
+{
+	std::ifstream inputFile("PetData.txt");
+	if (inputFile.is_open())
+	{
+		int SP{ 0 }, TSP{ 0 }, MP{ 0 }, TMP{ 0 }, HP{ 0 }, THP{ 0 };
+		bool ST{ 0 }, MT{ 0 }, HT{ 0 }, PC{ 0 }, FC{ 0 }, WC{ 0 };
+		//Pet Values
+		int PtH{ 0 }, PtMH{ 0 }, PtE{ 0 }, PtME{ 0 }, PtMo{ 0 }, PtHu{ 0 }, PtHy{ 0 }, PtSTR{ 0 }, PtINT{ 0 }, PtSTA{ 0 };
+		std::string line{};
+		while (std::getline(inputFile, line))
+		{
+			if (!SP)
+			{
+				m_SecondsPassed = std::stoi(line);
+				SP = 1;
+			}
+			else if(!TSP)
+			{
+				m_TotalSecondsPassed = std::stoi(line);
+				TSP = 1;
+			}
+			else if (!MP)
+			{
+				m_MinutesPassed = std::stoi(line);
+				MP = 1;
+			}
+			else if (!TMP)
+			{
+				m_TotalMinutesPassed = std::stoi(line);
+				TMP = 1;
+			}
+			else if (!HP)
+			{
+				m_HoursPassed = std::stoi(line);
+				HP = 1;
+			}
+			else if (!THP)
+			{
+				m_TotalHoursPassed = std::stoi(line);
+				THP = 1;
+			}
+			else if (!ST)
+			{
+				m_secondTick = std::stoi(line);
+				ST = 1;
+			}
+			else if (!MT)
+			{
+				m_minuteTick = std::stoi(line);
+				MT = 1;
+			}
+			else if (!HT)
+			{
+				m_hourTick = std::stoi(line);
+				HT = 1;
+			}
+			else if (!PC)
+			{
+				m_playCooldown = std::stoi(line);
+				PC = 1;
+			}
+			else if (!FC)
+			{
+				m_feedCooldown = std::stoi(line);
+				FC = 1;
+			}
+			else if (!WC)
+			{
+				m_washCooldown = std::stoi(line);
+				WC = 1;
+			}
+			else if (!PtH)
+			{
+				m_pet.AdjustValue(Pet::Value::Health, Funct::SetValue, std::stoi(line));
+				PtH = 1;
+			}
+			else if (!PtMH)
+			{
+				m_pet.AdjustValue(Pet::Value::MaxHealth, Funct::SetValue, std::stoi(line));
+				PtMH = 1;
+			}
+			else if (!PtE)
+			{
+				m_pet.AdjustValue(Pet::Value::Energy, Funct::SetValue, std::stoi(line));
+				PtE = 1;
+			}
+			else if (!PtME)
+			{
+				m_pet.AdjustValue(Pet::Value::MaxEnergy, Funct::SetValue, std::stoi(line));
+				PtME = 1;
+			}
+			else if (!PtMo)
+			{
+				m_pet.AdjustValue(Pet::Value::Mood, Funct::SetValue, std::stoi(line));
+				PtMo = 1;
+			}
+			else if (!PtHu)
+			{
+				m_pet.AdjustValue(Pet::Value::Hunger, Funct::SetValue, std::stoi(line));
+				PtHu = 1;
+			}
+			else if (!PtHy)
+			{
+				m_pet.AdjustValue(Pet::Value::Hygiene, Funct::SetValue, std::stoi(line));
+				PtHy = 1;
+			}
+			else if (!PtSTR)
+			{
+				m_pet.AdjustValue(Pet::Value::Str, Funct::SetValue, std::stoi(line));
+				PtSTR = 1;
+			}
+			else if (!PtINT)
+			{
+				m_pet.AdjustValue(Pet::Value::Int, Funct::SetValue, std::stoi(line));
+				PtINT = 1;
+			}
+			else if (!PtSTA)
+			{
+				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, std::stoi(line));
+				PtSTA = 1;
+				}
+		}
+	}
+	inputFile.close();
+}
+void Game::RunGame()
+{
+	LoadGame();
+	std::cout << "Main" << '\n';
+	std::cout << "[G] Game Screen" << '\n';
+	std::cout << "[P] Play Screen" << '\n';
+	std::cout << "[F] Feed Screen" << '\n';
+	std::cout << "[W] Wash Screen" << '\n';
+	std::cout << "[R] Battle Screen" << '\n';
+	std::cout << "[S] Stat Screen" << '\n';
+	std::cout << "[M] Menu Screen" << '\n';
+	while (m_state != Game::State::Quit)
+	{
+		TickUpdate();
+		TimerUpdate();
+		CooldownUpdates();
+		PetMinuteUpdates();
+		m_pet.UpdateStates();
+		UpdateState();
+		//Display current State Screen
+		//Gameloop
+		if (m_keyLast != m_input.GetKey())
+		{
+			system("cls");
+			switch (m_state)
+			{
+			case Game::State::Game:
+				std::cout << "[Game]" << '\n';
+				std::cout << "Pet mood is: " << m_pet.StateToString(Pet::Value::Mood) << '\n';
+				std::cout << "Pet Hunger is: " << m_pet.StateToString(Pet::Value::Hunger) << '\n';
+				std::cout << "Pet Hygiene is: " << m_pet.StateToString(Pet::Value::Hygiene) << '\n';
+				break;
+			case Game::State::Playing:
+				std::cout << "[Play]" << '\n';
+				PlayPet();
+				std::cout << "Pet mood is: " << m_pet.StateToString(Pet::Value::Mood) << '\n';
+				std::cout << "Mood level: " << m_pet.GetValue(Pet::Value::Mood) << '\n';
+				break;
+			case Game::State::Feeding:
+				std::cout << "[Feed]" << '\n';
+				FeedPet();
+				std::cout << "Pet Hunger is: " << m_pet.StateToString(Pet::Value::Hunger) << '\n';
+				std::cout << "Hunger level: " << m_pet.GetValue(Pet::Value::Hunger) << '\n';
+				break;
+			case Game::State::Washing:
+				std::cout << "[Wash]" << '\n';
+				WashPet();
+				std::cout << "Pet Hygiene is: " << m_pet.StateToString(Pet::Value::Hygiene) << '\n';
+				std::cout << "Hygiene level: " << m_pet.GetValue(Pet::Value::Hygiene) << '\n';
+				break;
+			case Game::State::Fighting:
+				std::cout << "[Fighting]" << '\n';
+				break;
+			case Game::State::Stats:
+				std::cout << "Stats" << '\n';
+				std::cout << "Str: " << m_pet.GetValue(Pet::Value::Str) << '\n';
+				std::cout << "Int: " << m_pet.GetValue(Pet::Value::Int) << '\n';
+				std::cout << "Sta: " << m_pet.GetValue(Pet::Value::Sta) << '\n';
+				std::cout << "Seconds: " << GetTime(Game::Time::Seconds) << " ";
+				std::cout << "Minutes: " << GetTime(Game::Time::Minutes) << " ";
+				std::cout << "Hours: " << GetTime(Game::Time::Hours) << '\n';
+				break;
+			case Game::State::Menu:
+				std::cout << "[Menu]" << '\n';
+				std::cout << "[G] Game Screen" << '\n';
+				std::cout << "[P] Play Screen" << '\n';
+				std::cout << "[F] Feed Screen" << '\n';
+				std::cout << "[W] Wash Screen" << '\n';
+				std::cout << "[R] Battle Screen" << '\n';
+				std::cout << "[S] Stat Screen" << '\n';
+				std::cout << "[Q] Save and Quit" << '\n';
+				if (m_input.GetKey() == 'q')
+				{
+					SaveGame();
+					ChangeState(Game::State::Quit);
+				}
+				break;
+			case Game::State::Quit:
+				break;
+			}
+			m_keyLast = m_input.GetKey();
+		}
+	}
+	std::cout << "Closing Game" << '\n';
+	system("pause");
+}
