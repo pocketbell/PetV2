@@ -61,6 +61,7 @@ private:
 	bool m_feedCooldown{};
 	bool m_washCooldown{};
 	char m_keyLast{};
+	bool m_level{ true };
 public:
 	void UpdateTime(Game::Time time, void(*function)(int&, int), int modifier);
 	int GetTime(Game::Time time);
@@ -79,4 +80,5 @@ public:
 	void SaveGame();
 	void LoadGame();
 	void RunGame();
+	void LevelPet();
 };

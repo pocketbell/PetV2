@@ -20,7 +20,8 @@ public:
 		MaxHygiene,
 		MinHygiene,
 		MaxHealth,
-		MaxEnergy
+		MaxEnergy,
+		ExperienceCap
 	};
 	enum class Value
 	{
@@ -33,7 +34,11 @@ public:
 		Int,
 		Sta,
 		MaxHealth,
-		MaxEnergy
+		MaxEnergy,
+		Level,
+		Experience,
+		ExperienceCap,
+		StatPoints
 	};
 	enum class Mood
 	{
@@ -70,9 +75,13 @@ private:
 	int m_hunger{ 80 };
 	int m_hygiene{ 80 };
 	//Stat
+	int m_level{ 1 };
+	int m_experience{ 51 };
+	int m_experienceCap{ 50 };
 	int m_str{ 5 };
 	int m_int{ 5 };
 	int m_sta{ 5 };
+	int m_statPoints{ 0 };
 public:
 	Pet(std::string name)
 		: m_name(name) {};

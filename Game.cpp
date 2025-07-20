@@ -7,10 +7,6 @@
 #include <fstream>
 #include <iostream>
 
-//void Game::SaveGame();
-//void Game::LoadGame();
-
-
 void Game::UpdateTime(Game::Time time, void(*function)(int&, int), int modifier)
 {
 	switch (time)
@@ -200,6 +196,44 @@ void Game::CooldownUpdates()
 		SetToggle(Game::Toggle::Wash, false);
 	}
 }
+void Game::LevelPet()
+{
+	
+	m_pet.AdjustValue(Pet::Value::Level, Funct::RaiseValue, 1);
+	m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, (m_pet.GetValue(Pet::Value::Level) * 50));
+	m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, 0);
+	m_pet.AdjustValue(Pet::Value::StatPoints, Funct::SetValue, 1); system("cls");
+	std::cout << "[" << m_pet.GetValue(Pet::Value::StatPoints) << "] Stat Point left\n";
+	std::cout << "[A] Allocate Str\n";
+	std::cout << "[I] Allocate Int\n";
+	std::cout << "[H] Allocate Sta\n";
+	while (m_pet.GetValue(Pet::Value::StatPoints) != 0)
+	{
+		m_input.GetInput();
+		switch (m_input.GetKey())
+		{
+		case 'a':
+			m_pet.AdjustValue(Pet::Value::Str, Funct::RaiseValue, 1);
+			m_pet.AdjustValue(Pet::Value::StatPoints, Funct::LowerValue, 1);
+			break;
+		case 'i':
+			m_pet.AdjustValue(Pet::Value::Int, Funct::RaiseValue, 1);
+			m_pet.AdjustValue(Pet::Value::StatPoints, Funct::LowerValue, 1);
+			//Energy Recovery Rate Adjustment
+			break;
+		case 'h':
+			m_pet.AdjustValue(Pet::Value::Sta, Funct::RaiseValue, 1);
+			m_pet.AdjustValue(Pet::Value::StatPoints, Funct::LowerValue, 1);
+			//Health Recovery Rate Adjustment
+			break;
+		}
+			
+		//if (m_input.GetKey() == ' ') { Pressed = false; }
+	}
+	
+	//system("cls");
+	ChangeState(Game::State::Game);
+}
 void Game::SaveGame()
 {
 	std::ofstream outputFile("PetData.txt", std::ios::trunc);
@@ -219,16 +253,19 @@ void Game::SaveGame()
 		outputFile << m_feedCooldown << '\n';
 		outputFile << m_washCooldown << '\n';
 		//Pet Values
-		outputFile << m_pet.GetValue(Pet::Value::Health) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::MaxHealth) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Energy) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::MaxEnergy) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Mood) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Hunger) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Hygiene) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Str) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Int) << '\n';;
-		outputFile << m_pet.GetValue(Pet::Value::Sta) << '\n';;
+		outputFile << m_pet.GetValue(Pet::Value::Health) << '\n';
+		outputFile << m_pet.GetLimit(Pet::Limit::MaxHealth) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Energy) << '\n';
+		outputFile << m_pet.GetLimit(Pet::Limit::MaxEnergy) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Mood) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Hunger) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Hygiene) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Str) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Int) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Sta) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Level) << '\n';
+		outputFile << m_pet.GetValue(Pet::Value::Experience) << '\n';
+		outputFile << m_pet.GetLimit(Pet::Limit::ExperienceCap) << '\n';
 	}
 	outputFile.close();
 }
@@ -241,6 +278,7 @@ void Game::LoadGame()
 		bool ST{ 0 }, MT{ 0 }, HT{ 0 }, PC{ 0 }, FC{ 0 }, WC{ 0 };
 		//Pet Values
 		int PtH{ 0 }, PtMH{ 0 }, PtE{ 0 }, PtME{ 0 }, PtMo{ 0 }, PtHu{ 0 }, PtHy{ 0 }, PtSTR{ 0 }, PtINT{ 0 }, PtSTA{ 0 };
+		int PLVL{ 0 }, PEXP{ 0 }, PEXPC{ 0 };
 		std::string line{};
 		while (std::getline(inputFile, line))
 		{
@@ -353,7 +391,22 @@ void Game::LoadGame()
 			{
 				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, std::stoi(line));
 				PtSTA = 1;
-				}
+			}
+			else if (!PLVL)
+			{
+				m_pet.AdjustValue(Pet::Value::Level, Funct::SetValue, std::stoi(line));
+				PLVL = 1;
+			}
+			else if (!PEXP)
+			{
+				m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, std::stoi(line));
+				PEXP = 1;
+			}
+			else if (!PEXPC)
+			{
+				m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, std::stoi(line));
+				PEXPC = 1;
+			}
 		}
 	}
 	inputFile.close();
@@ -361,7 +414,7 @@ void Game::LoadGame()
 void Game::RunGame()
 {
 	LoadGame();
-	std::cout << "Main" << '\n';
+	std::cout << "Controls" << '\n';
 	std::cout << "[G] Game Screen" << '\n';
 	std::cout << "[P] Play Screen" << '\n';
 	std::cout << "[F] Feed Screen" << '\n';
@@ -369,6 +422,7 @@ void Game::RunGame()
 	std::cout << "[R] Battle Screen" << '\n';
 	std::cout << "[S] Stat Screen" << '\n';
 	std::cout << "[M] Menu Screen" << '\n';
+	ChangeState(Game::State::Game);
 	while (m_state != Game::State::Quit)
 	{
 		TickUpdate();
@@ -381,6 +435,7 @@ void Game::RunGame()
 		//Gameloop
 		if (m_keyLast != m_input.GetKey())
 		{
+			m_keyLast = m_input.GetKey();
 			system("cls");
 			switch (m_state)
 			{
@@ -389,39 +444,52 @@ void Game::RunGame()
 				std::cout << "Pet mood is: " << m_pet.StateToString(Pet::Value::Mood) << '\n';
 				std::cout << "Pet Hunger is: " << m_pet.StateToString(Pet::Value::Hunger) << '\n';
 				std::cout << "Pet Hygiene is: " << m_pet.StateToString(Pet::Value::Hygiene) << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Playing:
 				std::cout << "[Play]" << '\n';
 				PlayPet();
+				//if(m_input.GetKey() == 'a') ChangeState(Game::State::Game);
 				std::cout << "Pet mood is: " << m_pet.StateToString(Pet::Value::Mood) << '\n';
 				std::cout << "Mood level: " << m_pet.GetValue(Pet::Value::Mood) << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Feeding:
 				std::cout << "[Feed]" << '\n';
 				FeedPet();
+				//if (m_input.GetKey() == 'a') ChangeState(Game::State::Game);
 				std::cout << "Pet Hunger is: " << m_pet.StateToString(Pet::Value::Hunger) << '\n';
 				std::cout << "Hunger level: " << m_pet.GetValue(Pet::Value::Hunger) << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Washing:
 				std::cout << "[Wash]" << '\n';
 				WashPet();
+				//if (m_input.GetKey() == 'a') ChangeState(Game::State::Game);
 				std::cout << "Pet Hygiene is: " << m_pet.StateToString(Pet::Value::Hygiene) << '\n';
 				std::cout << "Hygiene level: " << m_pet.GetValue(Pet::Value::Hygiene) << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Fighting:
 				std::cout << "[Fighting]" << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Stats:
 				std::cout << "Stats" << '\n';
+				std::cout << "Level: " << m_pet.GetValue(Pet::Value::Level) << '\n';
+				std::cout << "Exp: " << m_pet.GetValue(Pet::Value::Experience) << '\n';
+				std::cout << "Exp Needed: " << m_pet.GetLimit(Pet::Limit::ExperienceCap) << '\n';
 				std::cout << "Str: " << m_pet.GetValue(Pet::Value::Str) << '\n';
 				std::cout << "Int: " << m_pet.GetValue(Pet::Value::Int) << '\n';
 				std::cout << "Sta: " << m_pet.GetValue(Pet::Value::Sta) << '\n';
 				std::cout << "Seconds: " << GetTime(Game::Time::Seconds) << " ";
 				std::cout << "Minutes: " << GetTime(Game::Time::Minutes) << " ";
 				std::cout << "Hours: " << GetTime(Game::Time::Hours) << '\n';
+				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Menu:
 				std::cout << "[Menu]" << '\n';
+				std::cout << "Controls" << '\n';
 				std::cout << "[G] Game Screen" << '\n';
 				std::cout << "[P] Play Screen" << '\n';
 				std::cout << "[F] Feed Screen" << '\n';
@@ -429,6 +497,13 @@ void Game::RunGame()
 				std::cout << "[R] Battle Screen" << '\n';
 				std::cout << "[S] Stat Screen" << '\n';
 				std::cout << "[Q] Save and Quit" << '\n';
+				if (m_input.GetKey() == 'l' and m_pet.GetValue(Pet::Value::Experience) >= m_pet.GetLimit(Pet::Limit::ExperienceCap))
+				{
+					LevelPet(); 
+					system("cls");
+					ChangeState(Game::State::Game);
+					//m_level = false;
+				}
 				if (m_input.GetKey() == 'q')
 				{
 					SaveGame();
@@ -438,7 +513,6 @@ void Game::RunGame()
 			case Game::State::Quit:
 				break;
 			}
-			m_keyLast = m_input.GetKey();
 		}
 	}
 	std::cout << "Closing Game" << '\n';
