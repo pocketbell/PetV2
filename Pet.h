@@ -88,7 +88,9 @@ public:
 	void AdjustValue(Value value, void(*function)(int&, int), int modifier);
 	int GetValue(Value value);
 	int GetLimit(Limit limit);
-	void SetState(Value value, int state);
+	void SetMoodState();
+	void SetHungerState();
+	void SetHygieneState();
 	std::string StateToString(Pet::Value value);
 	void UpdateStates();
 	Pet::Mood GetMood();
