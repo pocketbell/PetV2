@@ -17,8 +17,8 @@ void Pet::AdjustValue(Value value, void(*function)(int&, int), int modifier)
 	case Pet::Value::MaxEnergy:		function(m_maxEnergy,			modifier);	break;
 	case Pet::Value::Level:			function(m_level,			modifier);	break;
 	case Pet::Value::Experience:		function(m_experience,			modifier);	break;
-	case Pet::Value::ExperienceCap:		function(m_experienceCap,  		 modifier);	break;
-	case Pet::Value::StatPoints:		function(m_statPoints,	   		 modifier);	break;
+	case Pet::Value::ExperienceCap:		function(m_experienceCap,  		modifier);	break;
+	case Pet::Value::StatPoints:		function(m_statPoints,	   		modifier);	break;
 	}
 }
 int Pet::GetValue(Value value)
