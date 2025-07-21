@@ -205,7 +205,7 @@ void Game::CooldownUpdates()
 void Game::LevelPet()
 {
 	m_pet.AdjustValue(Pet::Value::Level, Funct::RaiseValue, 1);
-	m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, 0);
+	m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, m_pet.GetValue(Pet::Value::Experience) - m_pet.GetLimit(Pet::Limit::ExperienceCap));
 	m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, (m_pet.GetValue(Pet::Value::Level) * 50));
 	m_pet.AdjustValue(Pet::Value::StatPoints, Funct::SetValue, 1); 
 	system("cls");
@@ -616,7 +616,6 @@ void Game::CritterBattle()
 		//Gain Exp = to Critter Health + Str
 		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue1);
 	}
-	
 	if (BattleTwo == true)
 	{
 		std::cout << "You Won the Battle\n";
