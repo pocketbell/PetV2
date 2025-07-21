@@ -14,10 +14,10 @@ void Game::UpdateTime(Game::Time time, void(*function)(int&, int), int modifier)
 	{
 	case Game::Time::Seconds:		function(m_SecondsPassed, modifier);		break;
 	case Game::Time::Minutes:		function(m_MinutesPassed, modifier);		break;
-	case Game::Time::Hours:			function(m_HoursPassed, modifier);			break;
-	case Game::Time::TotalSeconds:	function(m_TotalSecondsPassed, modifier);	break;
-	case Game::Time::TotalMinutes:	function(m_TotalMinutesPassed, modifier);	break;
-	case Game::Time::TotalHours:	function(m_TotalHoursPassed, modifier);		break;
+	case Game::Time::Hours:			function(m_HoursPassed, modifier);		break;
+	case Game::Time::TotalSeconds:		function(m_TotalSecondsPassed, modifier);	break;
+	case Game::Time::TotalMinutes:		function(m_TotalMinutesPassed, modifier);	break;
+	case Game::Time::TotalHours:		function(m_TotalHoursPassed, modifier);		break;
 	}
 }
 int Game::GetTime(Game::Time time)
@@ -27,9 +27,9 @@ int Game::GetTime(Game::Time time)
 	case Game::Time::Seconds:			return m_SecondsPassed;
 	case Game::Time::Minutes:			return m_MinutesPassed;
 	case Game::Time::Hours:				return m_HoursPassed;
-	case Game::Time::TotalSeconds:		return m_TotalSecondsPassed;
-	case Game::Time::TotalMinutes:		return m_TotalMinutesPassed;
-	case Game::Time::TotalHours:		return m_TotalHoursPassed;
+	case Game::Time::TotalSeconds:			return m_TotalSecondsPassed;
+	case Game::Time::TotalMinutes:			return m_TotalMinutesPassed;
+	case Game::Time::TotalHours:			return m_TotalHoursPassed;
 	}
 }
 void Game::SetToggle(Game::Toggle toggle, bool set)
@@ -39,9 +39,9 @@ void Game::SetToggle(Game::Toggle toggle, bool set)
 	case Game::Toggle::Second:	m_secondTick = set;		break;
 	case Game::Toggle::Minute:	m_minuteTick = set;		break;
 	case Game::Toggle::Hour:	m_hourTick = set;		break;
-	case Game::Toggle::Play:	m_playCooldown = set;	break;
-	case Game::Toggle::Feed:	m_feedCooldown = set;	break;
-	case Game::Toggle::Wash:	m_washCooldown = set;	break;
+	case Game::Toggle::Play:	m_playCooldown = set;		break;
+	case Game::Toggle::Feed:	m_feedCooldown = set;		break;
+	case Game::Toggle::Wash:	m_washCooldown = set;		break;
 	}
 }
 bool Game::GetToggle(Game::Toggle toggle)
