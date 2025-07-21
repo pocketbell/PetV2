@@ -15,6 +15,9 @@ private:
 	const int m_MoodDecay{ 5 };
 	const int m_HungerDecay{ 5 };
 	const int m_HygieneDecay{ 5 };
+	int m_HealthTick{ 10 };
+	int m_EnergyTick{ 10 };
+	const int m_BattleEnergy{ 20 };
 public:
 	enum class Time
 	{
@@ -81,4 +84,5 @@ public:
 	void LoadGame();
 	void RunGame();
 	void LevelPet();
+	void CritterBattle();
 };

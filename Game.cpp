@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Input.h"
 #include "Functions.h"
+#include "Critter.h"
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -13,10 +14,10 @@ void Game::UpdateTime(Game::Time time, void(*function)(int&, int), int modifier)
 	{
 	case Game::Time::Seconds:		function(m_SecondsPassed, modifier);		break;
 	case Game::Time::Minutes:		function(m_MinutesPassed, modifier);		break;
-	case Game::Time::Hours:			function(m_HoursPassed, modifier);		break;
-	case Game::Time::TotalSeconds:		function(m_TotalSecondsPassed, modifier);	break;
-	case Game::Time::TotalMinutes:		function(m_TotalMinutesPassed, modifier);	break;
-	case Game::Time::TotalHours:		function(m_TotalHoursPassed, modifier);		break;
+	case Game::Time::Hours:			function(m_HoursPassed, modifier);			break;
+	case Game::Time::TotalSeconds:	function(m_TotalSecondsPassed, modifier);	break;
+	case Game::Time::TotalMinutes:	function(m_TotalMinutesPassed, modifier);	break;
+	case Game::Time::TotalHours:	function(m_TotalHoursPassed, modifier);		break;
 	}
 }
 int Game::GetTime(Game::Time time)
@@ -26,9 +27,9 @@ int Game::GetTime(Game::Time time)
 	case Game::Time::Seconds:			return m_SecondsPassed;
 	case Game::Time::Minutes:			return m_MinutesPassed;
 	case Game::Time::Hours:				return m_HoursPassed;
-	case Game::Time::TotalSeconds:			return m_TotalSecondsPassed;
-	case Game::Time::TotalMinutes:			return m_TotalMinutesPassed;
-	case Game::Time::TotalHours:			return m_TotalHoursPassed;
+	case Game::Time::TotalSeconds:		return m_TotalSecondsPassed;
+	case Game::Time::TotalMinutes:		return m_TotalMinutesPassed;
+	case Game::Time::TotalHours:		return m_TotalHoursPassed;
 	}
 }
 void Game::SetToggle(Game::Toggle toggle, bool set)
@@ -38,9 +39,9 @@ void Game::SetToggle(Game::Toggle toggle, bool set)
 	case Game::Toggle::Second:	m_secondTick = set;		break;
 	case Game::Toggle::Minute:	m_minuteTick = set;		break;
 	case Game::Toggle::Hour:	m_hourTick = set;		break;
-	case Game::Toggle::Play:	m_playCooldown = set;		break;
-	case Game::Toggle::Feed:	m_feedCooldown = set;		break;
-	case Game::Toggle::Wash:	m_washCooldown = set;		break;
+	case Game::Toggle::Play:	m_playCooldown = set;	break;
+	case Game::Toggle::Feed:	m_feedCooldown = set;	break;
+	case Game::Toggle::Wash:	m_washCooldown = set;	break;
 	}
 }
 bool Game::GetToggle(Game::Toggle toggle)
@@ -79,7 +80,7 @@ void Game::UpdateState()
 }
 void Game::PlayPet()
 {
-	if (GetToggle(Game::Toggle::Play) == false)
+	if (!GetToggle(Game::Toggle::Play))
 	{
 		std::cout << "[A] to Play with pet." << '\n';
 		if (m_input.GetKey() == 'a')
@@ -96,7 +97,7 @@ void Game::PlayPet()
 }
 void Game::FeedPet()
 {
-	if (GetToggle(Game::Toggle::Feed) == false)
+	if (!GetToggle(Game::Toggle::Feed))
 	{
 		std::cout << "[A] to Feed pet" << '\n';
 		if (m_input.GetKey() == 'a')
@@ -113,7 +114,7 @@ void Game::FeedPet()
 }
 void Game::WashPet()
 {
-	if (GetToggle(Game::Toggle::Wash) == false)
+	if (!GetToggle(Game::Toggle::Wash))
 	{
 		std::cout << "[A] to Wash pet" << '\n';
 		if (m_input.GetKey() == 'a')
@@ -138,6 +139,11 @@ void Game::PetMinuteUpdates()
 		m_pet.AdjustValue(Pet::Value::Hunger, Funct::MinValue, m_pet.GetLimit(Pet::Limit::MinHunger));
 		m_pet.AdjustValue(Pet::Value::Hygiene, Funct::LowerValue, m_HygieneDecay);
 		m_pet.AdjustValue(Pet::Value::Hygiene, Funct::MinValue, m_pet.GetLimit(Pet::Limit::MinHygiene));
+		m_pet.AdjustValue(Pet::Value::Health, Funct::RaiseValue, m_HealthTick);
+		m_pet.AdjustValue(Pet::Value::Health, Funct::MaxValue, m_pet.GetLimit(Pet::Limit::MaxHealth));
+		m_pet.AdjustValue(Pet::Value::Energy, Funct::RaiseValue, m_EnergyTick);
+		m_pet.AdjustValue(Pet::Value::Energy, Funct::MaxValue, m_pet.GetLimit(Pet::Limit::MaxEnergy));
+
 	}
 }
 void Game::TickUpdate()
@@ -198,11 +204,12 @@ void Game::CooldownUpdates()
 }
 void Game::LevelPet()
 {
-	
 	m_pet.AdjustValue(Pet::Value::Level, Funct::RaiseValue, 1);
-	m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, (m_pet.GetValue(Pet::Value::Level) * 50));
 	m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, 0);
-	m_pet.AdjustValue(Pet::Value::StatPoints, Funct::SetValue, 1); system("cls");
+	m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, (m_pet.GetValue(Pet::Value::Level) * 50));
+	m_pet.AdjustValue(Pet::Value::StatPoints, Funct::SetValue, 1); 
+	system("cls");
+	std::cout << "You Leveled!\n";
 	std::cout << "[" << m_pet.GetValue(Pet::Value::StatPoints) << "] Stat Point left\n";
 	std::cout << "[A] Allocate Str\n";
 	std::cout << "[I] Allocate Int\n";
@@ -230,7 +237,10 @@ void Game::LevelPet()
 			
 		//if (m_input.GetKey() == ' ') { Pressed = false; }
 	}
-	
+	m_pet.AdjustValue(Pet::Value::MaxEnergy, Funct::SetValue, m_pet.GetLimit(Pet::Limit::MaxEnergy) + (m_pet.GetValue(Pet::Value::Int) * 2));
+	m_pet.AdjustValue(Pet::Value::MaxHealth, Funct::SetValue, m_pet.GetLimit(Pet::Limit::MaxHealth) + (m_pet.GetValue(Pet::Value::Sta) * 2));
+	m_HealthTick = m_HealthTick + m_pet.GetValue(Pet::Value::Sta);
+	m_EnergyTick = m_EnergyTick + m_pet.GetValue(Pet::Value::Int);
 	//system("cls");
 	ChangeState(Game::State::Game);
 }
@@ -441,6 +451,8 @@ void Game::RunGame()
 			{
 			case Game::State::Game:
 				std::cout << "[Game]" << '\n';
+				std::cout << "Pet Health: " << m_pet.GetValue(Pet::Value::Health) << '\n';
+				std::cout << "Pet Energy: " << m_pet.GetValue(Pet::Value::Energy) << '\n';
 				std::cout << "Pet mood is: " << m_pet.StateToString(Pet::Value::Mood) << '\n';
 				std::cout << "Pet Hunger is: " << m_pet.StateToString(Pet::Value::Hunger) << '\n';
 				std::cout << "Pet Hygiene is: " << m_pet.StateToString(Pet::Value::Hygiene) << '\n';
@@ -472,6 +484,31 @@ void Game::RunGame()
 				break;
 			case Game::State::Fighting:
 				std::cout << "[Fighting]" << '\n';
+				std::cout << "[A] To Battle Critters\n";
+				if (m_pet.GetValue(Pet::Value::Health) <= 10)
+				{
+					std::cout << "Pet too weak to battle\n";
+				}
+				else if (m_pet.GetValue(Pet::Value::Energy) <= 10)
+				{
+					std::cout << "Pet too weak to battle\n";
+				}
+				else
+				{
+					if (m_input.GetKey() == 'a')
+					{
+						CritterBattle();
+						m_pet.AdjustValue(Pet::Value::Energy, Funct::LowerValue, m_BattleEnergy);
+						m_pet.AdjustValue(Pet::Value::Energy, Funct::MinValue, 0);
+						if (m_pet.GetValue(Pet::Value::Experience) >= m_pet.GetLimit(Pet::Limit::ExperienceCap))
+						{
+							LevelPet();
+							system("cls");
+							ChangeState(Game::State::Game);
+							//m_level = false;
+						}
+					}
+				}
 				std::cout << "[M] Menu Screen" << '\n';
 				break;
 			case Game::State::Stats:
@@ -497,13 +534,6 @@ void Game::RunGame()
 				std::cout << "[R] Battle Screen" << '\n';
 				std::cout << "[S] Stat Screen" << '\n';
 				std::cout << "[Q] Save and Quit" << '\n';
-				if (m_input.GetKey() == 'l' and m_pet.GetValue(Pet::Value::Experience) >= m_pet.GetLimit(Pet::Limit::ExperienceCap))
-				{
-					LevelPet(); 
-					system("cls");
-					ChangeState(Game::State::Game);
-					//m_level = false;
-				}
 				if (m_input.GetKey() == 'q')
 				{
 					SaveGame();
@@ -516,5 +546,90 @@ void Game::RunGame()
 		}
 	}
 	std::cout << "Closing Game" << '\n';
+	system("pause");
+}
+void Game::CritterBattle()
+{
+	bool BattleOver = false;
+	bool BattleOne = false;
+	bool BattleTwo = false;
+	bool BattleThree = false;
+	Critter critter1{ m_pet.GetValue(Pet::Value::Level) };
+	Critter critter2{ m_pet.GetValue(Pet::Value::Level) };
+	Critter critter3{ m_pet.GetValue(Pet::Value::Level) };
+	int ExpValue1{ critter1.GetValue(Critter::Value::Health) + critter1.GetValue(Critter::Value::Str) };
+	int ExpValue2{ critter2.GetValue(Critter::Value::Health) + critter2.GetValue(Critter::Value::Str) };
+	int ExpValue3{ critter3.GetValue(Critter::Value::Health) + critter3.GetValue(Critter::Value::Str) };
+	std::cout << "Select a Critter to battle\n";
+	std::cout << "[1] Critter One\n";
+	std::cout << "Health: " << critter1.GetValue(Critter::Value::Health) << ' ' << "Str: " << critter1.GetValue(Critter::Value::Str) << '\n';
+	std::cout << "[2] Critter Two\n";																								 
+	std::cout << "Health: " << critter2.GetValue(Critter::Value::Health) << ' ' << "Str: " << critter1.GetValue(Critter::Value::Str) << '\n';
+	std::cout << "[3] Critter Three\n";																								 
+	std::cout << "Health: " << critter3.GetValue(Critter::Value::Health) << ' ' << "Str: " << critter1.GetValue(Critter::Value::Str) << '\n';
+	while (BattleOver == false)
+	{
+		m_input.GetInput();
+		if (m_input.GetKey() == '1')
+		{
+			while (critter1.GetValue(Critter::Value::Health) >= 0)
+			{
+				m_pet.AdjustValue(Pet::Value::Health, Funct::LowerValue, (critter1.GetValue(Critter::Value::Str) * 2));
+				critter1.AdjustValue(Critter::Value::Health, Funct::LowerValue, (m_pet.GetValue(Pet::Value::Str) * 2));
+			}
+			BattleOver = true;
+			BattleOne = true;
+		}
+		if (m_input.GetKey() == '2')
+		{
+			while (critter2.GetValue(Critter::Value::Health) >= 0)
+			{
+				m_pet.AdjustValue(Pet::Value::Health, Funct::LowerValue, (critter2.GetValue(Critter::Value::Str) * 2));
+				critter2.AdjustValue(Critter::Value::Health, Funct::LowerValue, (m_pet.GetValue(Pet::Value::Str) * 2));
+			}
+			BattleOver = true;
+			BattleTwo = true;
+		}
+		if (m_input.GetKey() == '3')
+		{
+			while (critter3.GetValue(Critter::Value::Health) >= 0)
+			{
+				m_pet.AdjustValue(Pet::Value::Health, Funct::LowerValue, (critter3.GetValue(Critter::Value::Str) * 2));
+				critter3.AdjustValue(Critter::Value::Health, Funct::LowerValue, (m_pet.GetValue(Pet::Value::Str) * 2));
+			}
+			BattleOver = true;
+			BattleThree = true;
+		}
+		
+	}
+	if (m_pet.GetValue(Pet::Value::Health) < 1)
+	{
+		std::cout << "You Lost the Battle\n";
+		m_pet.AdjustValue(Pet::Value::Health, Funct::MinValue, 1);
+		std::cout << "[G] or any key to return\n";
+		system("pause");
+		return;
+	}
+	if (BattleOne == true)
+	{
+		std::cout << "You Won the Battle\n";
+		//Gain Exp = to Critter Health + Str
+		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue1);
+	}
+	
+	if (BattleTwo == true)
+	{
+		std::cout << "You Won the Battle\n";
+		//Gain Exp = to Critter Health + Str
+		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue2);
+	}
+	if (BattleThree == true)
+	{
+		std::cout << "You Won the Battle\n";
+		//Gain Exp = to Critter Health + Str
+		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue3);
+	}
+	m_pet.AdjustValue(Pet::Value::Health, Funct::MinValue, 1);
+	std::cout << "[G] or any key to return\n";
 	system("pause");
 }

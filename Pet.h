@@ -76,7 +76,7 @@ private:
 	int m_hygiene{ 80 };
 	//Stat
 	int m_level{ 1 };
-	int m_experience{ 51 };
+	int m_experience{ 0 };
 	int m_experienceCap{ 50 };
 	int m_str{ 5 };
 	int m_int{ 5 };
@@ -88,12 +88,13 @@ public:
 	void AdjustValue(Value value, void(*function)(int&, int), int modifier);
 	int GetValue(Value value);
 	int GetLimit(Limit limit);
-	void SetMoodState();
-	void SetHungerState();
-	void SetHygieneState();
 	std::string StateToString(Pet::Value value);
 	void UpdateStates();
 	Pet::Mood GetMood();
 	Pet::Hunger GetHunger();
 	Pet::Hygiene GetHygiene();
+private:
+	void SetMoodState();
+	void SetHungerState();
+	void SetHygieneState();
 };
