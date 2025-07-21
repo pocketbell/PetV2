@@ -30,8 +30,8 @@ int Critter::GetValue(Value value)
 	case Value::Level:		return m_level;
 	case Value::Health:		return m_health;
 	case Value::Str:		return m_str;
-	case Value::MinHealth:	return m_minHealth;
-	case Value::MaxHealth:	return m_maxHealth;
+	case Value::MinHealth:		return m_minHealth;
+	case Value::MaxHealth:		return m_maxHealth;
 	case Value::MinStr:		return m_minStr;
 	case Value::MaxStr:		return m_maxStr;
 	}
