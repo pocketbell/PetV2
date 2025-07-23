@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <array>
+#include <utility>
 
 void Game::UpdateTime(Game::Time time, void(*function)(int&, int), int modifier)
 {
@@ -244,186 +246,110 @@ void Game::LevelPet()
 	//system("cls");
 	ChangeState(Game::State::Game);
 }
-void Game::SaveGame()
+int Game::SaveDataValue(Game::SaveData data)
 {
-	std::ofstream outputFile("PetData.txt", std::ios::trunc);
-	if (outputFile.is_open())
+	switch (data)
 	{
-		//Game Values
-		outputFile << m_SecondsPassed << '\n';
-		outputFile << m_TotalSecondsPassed << '\n';
-		outputFile << m_MinutesPassed << '\n';
-		outputFile << m_TotalMinutesPassed << '\n';
-		outputFile << m_HoursPassed << '\n';
-		outputFile << m_TotalHoursPassed << '\n';
-		outputFile << m_secondTick << '\n';
-		outputFile << m_minuteTick << '\n';
-		outputFile << m_hourTick << '\n';
-		outputFile << m_playCooldown << '\n';
-		outputFile << m_feedCooldown << '\n';
-		outputFile << m_washCooldown << '\n';
-		//Pet Values
-		outputFile << m_pet.GetValue(Pet::Value::Health) << '\n';
-		outputFile << m_pet.GetLimit(Pet::Limit::MaxHealth) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Energy) << '\n';
-		outputFile << m_pet.GetLimit(Pet::Limit::MaxEnergy) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Mood) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Hunger) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Hygiene) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Str) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Int) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Sta) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Level) << '\n';
-		outputFile << m_pet.GetValue(Pet::Value::Experience) << '\n';
-		outputFile << m_pet.GetLimit(Pet::Limit::ExperienceCap) << '\n';
+	case Game::SaveData::SecondsPassed:			return m_SecondsPassed;
+	case Game::SaveData::TotalSecondsPassed:	return m_TotalSecondsPassed;
+	case Game::SaveData::MinutesPassed:			return m_MinutesPassed;
+	case Game::SaveData::TotalMinutesPassed:	return m_TotalMinutesPassed;
+	case Game::SaveData::HoursPassed:			return m_HoursPassed;
+	case Game::SaveData::TotalHoursPassed:		return m_TotalHoursPassed;
+	case Game::SaveData::SecondTick:			return m_secondTick;
+	case Game::SaveData::MinuteTick:			return m_minuteTick;
+	case Game::SaveData::HourTick:				return m_hourTick;
+	case Game::SaveData::PlayCooldown:			return m_playCooldown;
+	case Game::SaveData::FeedCooldown:			return m_feedCooldown;
+	case Game::SaveData::WashCooldown:			return m_washCooldown;
+	case Game::SaveData::PetHealth:				return m_pet.GetValue(Pet::Value::Health);
+	case Game::SaveData::PetMaxHealth:			return m_pet.GetLimit(Pet::Limit::MaxHealth);
+	case Game::SaveData::PetEnergy:				return m_pet.GetValue(Pet::Value::Energy);
+	case Game::SaveData::PetMaxEnergy:			return m_pet.GetLimit(Pet::Limit::MaxEnergy);
+	case Game::SaveData::PetMood:				return m_pet.GetValue(Pet::Value::Mood);
+	case Game::SaveData::PetHunger:				return m_pet.GetValue(Pet::Value::Hunger);
+	case Game::SaveData::PetHygiene:			return m_pet.GetValue(Pet::Value::Hygiene);
+	case Game::SaveData::PetStr:				return m_pet.GetValue(Pet::Value::Str);
+	case Game::SaveData::PetInt:				return m_pet.GetValue(Pet::Value::Int);
+	case Game::SaveData::PetSta:				return m_pet.GetValue(Pet::Value::Sta);
+	case Game::SaveData::PetLevel:				return m_pet.GetValue(Pet::Value::Level);
+	case Game::SaveData::PetExperience:			return m_pet.GetValue(Pet::Value::Experience);
+	case Game::SaveData::PetExperienceCap:		return m_pet.GetLimit(Pet::Limit::ExperienceCap);
 	}
-	outputFile.close();
 }
-void Game::LoadGame()
+void Game::SetData(Game::SaveData data, int modifier)
 {
-	std::ifstream inputFile("PetData.txt");
-	if (inputFile.is_open())
+	switch (data)
 	{
-		int SP{ 0 }, TSP{ 0 }, MP{ 0 }, TMP{ 0 }, HP{ 0 }, THP{ 0 };
-		bool ST{ 0 }, MT{ 0 }, HT{ 0 }, PC{ 0 }, FC{ 0 }, WC{ 0 };
-		//Pet Values
-		int PtH{ 0 }, PtMH{ 0 }, PtE{ 0 }, PtME{ 0 }, PtMo{ 0 }, PtHu{ 0 }, PtHy{ 0 }, PtSTR{ 0 }, PtINT{ 0 }, PtSTA{ 0 };
-		int PLVL{ 0 }, PEXP{ 0 }, PEXPC{ 0 };
-		std::string line{};
-		while (std::getline(inputFile, line))
+	case Game::SaveData::SecondsPassed:			m_SecondsPassed = modifier;			break;
+	case Game::SaveData::TotalSecondsPassed:	m_TotalSecondsPassed = modifier;	break;
+	case Game::SaveData::MinutesPassed:			m_MinutesPassed = modifier;			break;
+	case Game::SaveData::TotalMinutesPassed:	m_TotalMinutesPassed = modifier;	break;
+	case Game::SaveData::HoursPassed:			m_HoursPassed = modifier;			break;
+	case Game::SaveData::TotalHoursPassed:		m_TotalHoursPassed = modifier;		break;
+	case Game::SaveData::SecondTick:			m_secondTick = modifier;			break;
+	case Game::SaveData::MinuteTick:			m_minuteTick = modifier;			break;
+	case Game::SaveData::HourTick:				m_hourTick = modifier;				break;
+	case Game::SaveData::PlayCooldown:			m_playCooldown = modifier;			break;
+	case Game::SaveData::FeedCooldown:			m_feedCooldown = modifier;			break;
+	case Game::SaveData::WashCooldown:			m_washCooldown = modifier;			break;
+	case Game::SaveData::PetHealth:				m_pet.AdjustValue(Pet::Value::Health, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetMaxHealth:			m_pet.AdjustValue(Pet::Value::MaxHealth, Funct::SetValue, modifier);		break;
+	case Game::SaveData::PetEnergy:				m_pet.AdjustValue(Pet::Value::Energy, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetMaxEnergy:			m_pet.AdjustValue(Pet::Value::MaxEnergy, Funct::SetValue, modifier);		break;
+	case Game::SaveData::PetMood:				m_pet.AdjustValue(Pet::Value::Mood, Funct::SetValue, modifier);				break;
+	case Game::SaveData::PetHunger:				m_pet.AdjustValue(Pet::Value::Hunger, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetHygiene:			m_pet.AdjustValue(Pet::Value::Hygiene, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetStr:				m_pet.AdjustValue(Pet::Value::Str, Funct::SetValue, modifier);				break;
+	case Game::SaveData::PetInt:				m_pet.AdjustValue(Pet::Value::Int, Funct::SetValue, modifier);				break;
+	case Game::SaveData::PetSta:				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, modifier);				break;
+	case Game::SaveData::PetLevel:				m_pet.AdjustValue(Pet::Value::Level, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetExperience:			m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, modifier);		break;
+	case Game::SaveData::PetExperienceCap:		m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, modifier);	break;
+	}
+}
+std::array<std::pair<Game::SaveData, int>, 25> Game::CreateSave()
+{
+	std::array<std::pair<Game::SaveData, int>, 25> TempData;
+
+	for (int i = 0; i < 25; i++)
+	{
+		TempData[i].first = (Game::SaveData)i;
+		TempData[i].second = SaveDataValue((Game::SaveData)i);
+	}
+	return TempData;
+}
+void Game::SaveFile()
+{
+	std::array<std::pair<Game::SaveData, int>, 25> SaveFile = CreateSave();
+	std::ofstream SaveData("SaveData.txt", std::ios::trunc);
+	if (SaveData.is_open())
+	{
+		for (int i = 0; i < 25; i++)
 		{
-			if (!SP)
-			{
-				m_SecondsPassed = std::stoi(line);
-				SP = 1;
-			}
-			else if(!TSP)
-			{
-				m_TotalSecondsPassed = std::stoi(line);
-				TSP = 1;
-			}
-			else if (!MP)
-			{
-				m_MinutesPassed = std::stoi(line);
-				MP = 1;
-			}
-			else if (!TMP)
-			{
-				m_TotalMinutesPassed = std::stoi(line);
-				TMP = 1;
-			}
-			else if (!HP)
-			{
-				m_HoursPassed = std::stoi(line);
-				HP = 1;
-			}
-			else if (!THP)
-			{
-				m_TotalHoursPassed = std::stoi(line);
-				THP = 1;
-			}
-			else if (!ST)
-			{
-				m_secondTick = std::stoi(line);
-				ST = 1;
-			}
-			else if (!MT)
-			{
-				m_minuteTick = std::stoi(line);
-				MT = 1;
-			}
-			else if (!HT)
-			{
-				m_hourTick = std::stoi(line);
-				HT = 1;
-			}
-			else if (!PC)
-			{
-				m_playCooldown = std::stoi(line);
-				PC = 1;
-			}
-			else if (!FC)
-			{
-				m_feedCooldown = std::stoi(line);
-				FC = 1;
-			}
-			else if (!WC)
-			{
-				m_washCooldown = std::stoi(line);
-				WC = 1;
-			}
-			else if (!PtH)
-			{
-				m_pet.AdjustValue(Pet::Value::Health, Funct::SetValue, std::stoi(line));
-				PtH = 1;
-			}
-			else if (!PtMH)
-			{
-				m_pet.AdjustValue(Pet::Value::MaxHealth, Funct::SetValue, std::stoi(line));
-				PtMH = 1;
-			}
-			else if (!PtE)
-			{
-				m_pet.AdjustValue(Pet::Value::Energy, Funct::SetValue, std::stoi(line));
-				PtE = 1;
-			}
-			else if (!PtME)
-			{
-				m_pet.AdjustValue(Pet::Value::MaxEnergy, Funct::SetValue, std::stoi(line));
-				PtME = 1;
-			}
-			else if (!PtMo)
-			{
-				m_pet.AdjustValue(Pet::Value::Mood, Funct::SetValue, std::stoi(line));
-				PtMo = 1;
-			}
-			else if (!PtHu)
-			{
-				m_pet.AdjustValue(Pet::Value::Hunger, Funct::SetValue, std::stoi(line));
-				PtHu = 1;
-			}
-			else if (!PtHy)
-			{
-				m_pet.AdjustValue(Pet::Value::Hygiene, Funct::SetValue, std::stoi(line));
-				PtHy = 1;
-			}
-			else if (!PtSTR)
-			{
-				m_pet.AdjustValue(Pet::Value::Str, Funct::SetValue, std::stoi(line));
-				PtSTR = 1;
-			}
-			else if (!PtINT)
-			{
-				m_pet.AdjustValue(Pet::Value::Int, Funct::SetValue, std::stoi(line));
-				PtINT = 1;
-			}
-			else if (!PtSTA)
-			{
-				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, std::stoi(line));
-				PtSTA = 1;
-			}
-			else if (!PLVL)
-			{
-				m_pet.AdjustValue(Pet::Value::Level, Funct::SetValue, std::stoi(line));
-				PLVL = 1;
-			}
-			else if (!PEXP)
-			{
-				m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, std::stoi(line));
-				PEXP = 1;
-			}
-			else if (!PEXPC)
-			{
-				m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, std::stoi(line));
-				PEXPC = 1;
-			}
+			SaveData << (int)SaveFile[i].first << ' ' << SaveFile[i].second << std::endl;
 		}
 	}
-	inputFile.close();
+	SaveData.close();
+}
+void Game::LoadFile()
+{
+	std::ifstream SaveData("SaveData.txt");
+	int FirstVal{};
+	int SecondVal{};
+	if (SaveData.is_open())
+	{
+		while (SaveData >> FirstVal >> SecondVal)
+		{
+			SetData((Game::SaveData)FirstVal, SecondVal);
+		}
+	}
+	SaveData.close();
 }
 void Game::RunGame()
 {
-	LoadGame();
+	//LoadGame();
+	LoadFile();
 	std::cout << "Controls" << '\n';
 	std::cout << "[G] Game Screen" << '\n';
 	std::cout << "[P] Play Screen" << '\n';
@@ -536,8 +462,13 @@ void Game::RunGame()
 				std::cout << "[Q] Save and Quit" << '\n';
 				if (m_input.GetKey() == 'q')
 				{
-					SaveGame();
+					//SaveGame();
+					SaveFile();
 					ChangeState(Game::State::Quit);
+				}
+				if (m_input.GetKey() == '6')
+				{
+					SaveFile();
 				}
 				break;
 			case Game::State::Quit:
@@ -612,23 +543,21 @@ void Game::CritterBattle()
 	}
 	if (BattleOne == true)
 	{
-		std::cout << "You Won the Battle\n";
 		//Gain Exp = to Critter Health + Str
 		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue1);
 	}
 	if (BattleTwo == true)
 	{
-		std::cout << "You Won the Battle\n";
 		//Gain Exp = to Critter Health + Str
 		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue2);
 	}
 	if (BattleThree == true)
 	{
-		std::cout << "You Won the Battle\n";
 		//Gain Exp = to Critter Health + Str
 		m_pet.AdjustValue(Pet::Value::Experience, Funct::RaiseValue, ExpValue3);
 	}
-	m_pet.AdjustValue(Pet::Value::Health, Funct::MinValue, 1);
+	std::cout << "You Won the Battle\n";
+	//m_pet.AdjustValue(Pet::Value::Health, Funct::MinValue, 1);
 	std::cout << "[G] or any key to return\n";
 	system("pause");
 }

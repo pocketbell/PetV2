@@ -49,6 +49,35 @@ public:
 		Menu,
 		Quit
 	};
+	//Save Enum
+	enum class SaveData
+	{
+		SecondsPassed,
+		TotalSecondsPassed,
+		MinutesPassed,
+		TotalMinutesPassed,
+		HoursPassed,
+		TotalHoursPassed,
+		SecondTick,
+		MinuteTick,
+		HourTick,
+		PlayCooldown,
+		FeedCooldown,
+		WashCooldown,
+		PetHealth,
+		PetMaxHealth,
+		PetEnergy,
+		PetMaxEnergy,
+		PetMood,
+		PetHunger,
+		PetHygiene,
+		PetStr,
+		PetInt,
+		PetSta,
+		PetLevel,
+		PetExperience,
+		PetExperienceCap
+	};
 private:
 	State m_state{};
 	Pet m_pet{ "Pet" };
@@ -80,9 +109,12 @@ public:
 	void TickUpdate();
 	void TimerUpdate();
 	void CooldownUpdates();
-	void SaveGame();
-	void LoadGame();
 	void RunGame();
 	void LevelPet();
 	void CritterBattle();
+	std::array<std::pair<Game::SaveData, int>, 25> CreateSave();
+	int SaveDataValue(Game::SaveData data);
+	void SaveFile();
+	void LoadFile();
+	void SetData(Game::SaveData data, int modifier);
 };
