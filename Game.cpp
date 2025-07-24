@@ -251,11 +251,11 @@ int Game::SaveDataValue(Game::SaveData data)
 	switch (data)
 	{
 	case Game::SaveData::SecondsPassed:			return m_SecondsPassed;
-	case Game::SaveData::TotalSecondsPassed:	return m_TotalSecondsPassed;
+	case Game::SaveData::TotalSecondsPassed:		return m_TotalSecondsPassed;
 	case Game::SaveData::MinutesPassed:			return m_MinutesPassed;
-	case Game::SaveData::TotalMinutesPassed:	return m_TotalMinutesPassed;
+	case Game::SaveData::TotalMinutesPassed:		return m_TotalMinutesPassed;
 	case Game::SaveData::HoursPassed:			return m_HoursPassed;
-	case Game::SaveData::TotalHoursPassed:		return m_TotalHoursPassed;
+	case Game::SaveData::TotalHoursPassed:			return m_TotalHoursPassed;
 	case Game::SaveData::SecondTick:			return m_secondTick;
 	case Game::SaveData::MinuteTick:			return m_minuteTick;
 	case Game::SaveData::HourTick:				return m_hourTick;
@@ -274,7 +274,7 @@ int Game::SaveDataValue(Game::SaveData data)
 	case Game::SaveData::PetSta:				return m_pet.GetValue(Pet::Value::Sta);
 	case Game::SaveData::PetLevel:				return m_pet.GetValue(Pet::Value::Level);
 	case Game::SaveData::PetExperience:			return m_pet.GetValue(Pet::Value::Experience);
-	case Game::SaveData::PetExperienceCap:		return m_pet.GetLimit(Pet::Limit::ExperienceCap);
+	case Game::SaveData::PetExperienceCap:			return m_pet.GetLimit(Pet::Limit::ExperienceCap);
 	}
 }
 void Game::SetData(Game::SaveData data, int modifier)
@@ -282,30 +282,30 @@ void Game::SetData(Game::SaveData data, int modifier)
 	switch (data)
 	{
 	case Game::SaveData::SecondsPassed:			m_SecondsPassed = modifier;			break;
-	case Game::SaveData::TotalSecondsPassed:	m_TotalSecondsPassed = modifier;	break;
+	case Game::SaveData::TotalSecondsPassed:		m_TotalSecondsPassed = modifier;		break;
 	case Game::SaveData::MinutesPassed:			m_MinutesPassed = modifier;			break;
-	case Game::SaveData::TotalMinutesPassed:	m_TotalMinutesPassed = modifier;	break;
+	case Game::SaveData::TotalMinutesPassed:		m_TotalMinutesPassed = modifier;		break;
 	case Game::SaveData::HoursPassed:			m_HoursPassed = modifier;			break;
-	case Game::SaveData::TotalHoursPassed:		m_TotalHoursPassed = modifier;		break;
+	case Game::SaveData::TotalHoursPassed:			m_TotalHoursPassed = modifier;			break;
 	case Game::SaveData::SecondTick:			m_secondTick = modifier;			break;
 	case Game::SaveData::MinuteTick:			m_minuteTick = modifier;			break;
 	case Game::SaveData::HourTick:				m_hourTick = modifier;				break;
 	case Game::SaveData::PlayCooldown:			m_playCooldown = modifier;			break;
 	case Game::SaveData::FeedCooldown:			m_feedCooldown = modifier;			break;
 	case Game::SaveData::WashCooldown:			m_washCooldown = modifier;			break;
-	case Game::SaveData::PetHealth:				m_pet.AdjustValue(Pet::Value::Health, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetHealth:				m_pet.AdjustValue(Pet::Value::Health, Funct::SetValue, modifier);		break;
 	case Game::SaveData::PetMaxHealth:			m_pet.AdjustValue(Pet::Value::MaxHealth, Funct::SetValue, modifier);		break;
-	case Game::SaveData::PetEnergy:				m_pet.AdjustValue(Pet::Value::Energy, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetEnergy:				m_pet.AdjustValue(Pet::Value::Energy, Funct::SetValue, modifier);		break;
 	case Game::SaveData::PetMaxEnergy:			m_pet.AdjustValue(Pet::Value::MaxEnergy, Funct::SetValue, modifier);		break;
-	case Game::SaveData::PetMood:				m_pet.AdjustValue(Pet::Value::Mood, Funct::SetValue, modifier);				break;
-	case Game::SaveData::PetHunger:				m_pet.AdjustValue(Pet::Value::Hunger, Funct::SetValue, modifier);			break;
-	case Game::SaveData::PetHygiene:			m_pet.AdjustValue(Pet::Value::Hygiene, Funct::SetValue, modifier);			break;
-	case Game::SaveData::PetStr:				m_pet.AdjustValue(Pet::Value::Str, Funct::SetValue, modifier);				break;
-	case Game::SaveData::PetInt:				m_pet.AdjustValue(Pet::Value::Int, Funct::SetValue, modifier);				break;
-	case Game::SaveData::PetSta:				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, modifier);				break;
-	case Game::SaveData::PetLevel:				m_pet.AdjustValue(Pet::Value::Level, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetMood:				m_pet.AdjustValue(Pet::Value::Mood, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetHunger:				m_pet.AdjustValue(Pet::Value::Hunger, Funct::SetValue, modifier);		break;
+	case Game::SaveData::PetHygiene:			m_pet.AdjustValue(Pet::Value::Hygiene, Funct::SetValue, modifier);		break;
+	case Game::SaveData::PetStr:				m_pet.AdjustValue(Pet::Value::Str, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetInt:				m_pet.AdjustValue(Pet::Value::Int, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetSta:				m_pet.AdjustValue(Pet::Value::Sta, Funct::SetValue, modifier);			break;
+	case Game::SaveData::PetLevel:				m_pet.AdjustValue(Pet::Value::Level, Funct::SetValue, modifier);		break;
 	case Game::SaveData::PetExperience:			m_pet.AdjustValue(Pet::Value::Experience, Funct::SetValue, modifier);		break;
-	case Game::SaveData::PetExperienceCap:		m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, modifier);	break;
+	case Game::SaveData::PetExperienceCap:			m_pet.AdjustValue(Pet::Value::ExperienceCap, Funct::SetValue, modifier);	break;
 	}
 }
 std::string Game::SaveStateToString(Game::SaveData data)
@@ -313,11 +313,11 @@ std::string Game::SaveStateToString(Game::SaveData data)
 	switch (data)
 	{
 	case Game::SaveData::SecondsPassed:			return "SecondsPassed";
-	case Game::SaveData::TotalSecondsPassed:	return "TotalSecondsPassed";
+	case Game::SaveData::TotalSecondsPassed:		return "TotalSecondsPassed";
 	case Game::SaveData::MinutesPassed:			return "MinutesPassed";
-	case Game::SaveData::TotalMinutesPassed:	return "TotalMinutesPassed";
+	case Game::SaveData::TotalMinutesPassed:		return "TotalMinutesPassed";
 	case Game::SaveData::HoursPassed:			return "HoursPassed";
-	case Game::SaveData::TotalHoursPassed:		return "TotalHoursPassed";
+	case Game::SaveData::TotalHoursPassed:			return "TotalHoursPassed";
 	case Game::SaveData::SecondTick:			return "SecondTick";
 	case Game::SaveData::MinuteTick:			return "MinuteTick";
 	case Game::SaveData::HourTick:				return "HourTick";
@@ -341,12 +341,12 @@ std::string Game::SaveStateToString(Game::SaveData data)
 }
 Game::SaveData Game::SaveStringToState(std::string data)
 {
-	if (data == "SecondsPassed")		{ return Game::SaveData::SecondsPassed; }
-	if (data == "TotalSecondsPassed")	{ return Game::SaveData::TotalSecondsPassed; }
-	if (data == "MinutesPassed")		{ return Game::SaveData::MinutesPassed; }
-	if (data == "TotalMinutesPassed")	{ return Game::SaveData::TotalMinutesPassed; }
+	if (data == "SecondsPassed")			{ return Game::SaveData::SecondsPassed; }
+	if (data == "TotalSecondsPassed")		{ return Game::SaveData::TotalSecondsPassed; }
+	if (data == "MinutesPassed")			{ return Game::SaveData::MinutesPassed; }
+	if (data == "TotalMinutesPassed")		{ return Game::SaveData::TotalMinutesPassed; }
 	if (data == "HoursPassed")			{ return Game::SaveData::HoursPassed; }
-	if (data == "TotalHoursPassed")		{ return Game::SaveData::TotalHoursPassed; }
+	if (data == "TotalHoursPassed")			{ return Game::SaveData::TotalHoursPassed; }
 	if (data == "SecondTick")			{ return Game::SaveData::SecondTick; }
 	if (data == "MinuteTick")			{ return Game::SaveData::MinuteTick; }
 	if (data == "HourTick")				{ return Game::SaveData::HourTick; }
@@ -364,8 +364,8 @@ Game::SaveData Game::SaveStringToState(std::string data)
 	if (data == "PetInt")				{ return Game::SaveData::PetInt; }
 	if (data == "PetSta")				{ return Game::SaveData::PetSta; }
 	if (data == "PetLevel")				{ return Game::SaveData::PetLevel; }
-	if (data == "PetExperienceC")		{ return Game::SaveData::PetExperience; }
-	if (data == "PetExperienceCap")		{ return Game::SaveData::PetExperienceCap; }
+	if (data == "PetExperienceC")			{ return Game::SaveData::PetExperience; }
+	if (data == "PetExperienceCap")			{ return Game::SaveData::PetExperienceCap; }
 }
 std::array<std::pair<std::string, int>, (int)Game::SaveData::COUNT> Game::CreateSave()
 {
