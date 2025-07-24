@@ -336,7 +336,7 @@ std::string Game::SaveStateToString(Game::SaveData data)
 	case Game::SaveData::PetSta:				return "PetSta";
 	case Game::SaveData::PetLevel:				return "PetLevel";
 	case Game::SaveData::PetExperience:			return "PetExperienceC";
-	case Game::SaveData::PetExperienceCap:		return "PetExperienceCap";
+	case Game::SaveData::PetExperienceCap:			return "PetExperienceCap";
 	}
 }
 Game::SaveData Game::SaveStringToState(std::string data)
