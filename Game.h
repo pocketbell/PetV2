@@ -76,7 +76,8 @@ public:
 		PetSta,
 		PetLevel,
 		PetExperience,
-		PetExperienceCap
+		PetExperienceCap,
+		COUNT
 	};
 private:
 	State m_state{};
@@ -112,9 +113,13 @@ public:
 	void RunGame();
 	void LevelPet();
 	void CritterBattle();
-	std::array<std::pair<Game::SaveData, int>, 25> CreateSave();
+	std::array<std::pair<std::string, int>, (int)Game::SaveData::COUNT> CreateSave();
 	int SaveDataValue(Game::SaveData data);
 	void SaveFile();
 	void LoadFile();
 	void SetData(Game::SaveData data, int modifier);
+
+
+	Game::SaveData SaveStringToState(std::string data);
+	std::string SaveStateToString(Game::SaveData data);
 };
